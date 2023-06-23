@@ -27,7 +27,7 @@
    // session.setAttribute("hewon", hewon);
    // response.sendRedirect("non_useBean_display.jsp"); 
     
-   request.setAttribute("hewon", hewon);
+   request.setAttribute("hewon", hewon); // model
    
    // 포워드 이동 : 요청 JSP 문서에서 응답 JSP 문서로 스레드를 이동하여 응답 처리
    // => 클라이언트의 요청 URL 주소 미변경 - 서버에서 JSP 문서 이동
