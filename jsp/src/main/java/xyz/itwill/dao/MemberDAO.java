@@ -96,4 +96,113 @@ public class MemberDAO extends JdbcDAO{
 
 		return member;
 	}
+	
+	public int updateLastLogin(String id) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rows = 0;
+		
+		try {
+			conn = getConnection();
+			
+			String sql = "update member set last_login = sysdate where id = ?";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			
+			
+			rows = pstmt.executeUpdate();
+	}catch(SQLException e) {
+		System.out.println("updateLastLogin메소드 오류 = " + e.getMessage());
+	}finally {
+		close(conn, pstmt, null);
+	}
+		return rows;
+	}
+	
+	public int updateMember(MemberDTO member) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rows = 0;
+		
+		try {
+			conn = getConnection();
+			
+			String sql = "update member set passwd = ? , name = ? "
+					+ ", email = ?, mobile = ? , address1 = ? , address2 = ? where id = ?";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getPasswd());
+			pstmt.setString(2, member.getName());
+			pstmt.setString(3, member.getEmail());
+			pstmt.setString(4, member.getMobile());
+			pstmt.setString(5, member.getAddress());
+			pstmt.setString(6, member.getAddress2());
+			pstmt.setString(7, member.getId());
+			
+			
+			rows = pstmt.executeUpdate();
+	}catch(SQLException e) {
+		System.out.println("updateMember메소드 오류 = " + e.getMessage());
+	}finally {
+		close(conn, pstmt, null);
+	}
+		return rows;
+	}
+	
+	public int updateMemberStatus(String id, int memberStatus) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rows = 0;
+		
+		try {
+			conn = getConnection();
+			
+			String sql = "update member set member_status = ? where id = ?";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setInt(1, memberStatus);
+			pstmt.setString(2, id);
+			
+			
+			rows = pstmt.executeUpdate();
+	}catch(SQLException e) {
+		System.out.println("updateMemberStatus 메소드 오류 = " + e.getMessage());
+	}finally {
+		close(conn, pstmt, null);
+	}
+		return rows;
+	}
+	
+	public String findmember(String name, String email) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String id = null;
+		
+		try {
+			conn = getConnection();
+			
+			String sql = "select id from member where name = ? and email = ?";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, name);
+			pstmt.setString(2, email);
+			
+			rs = pstmt.executeQuery();
+			
+			id = rs.getString("id");
+		}catch(SQLException e) {
+			System.out.println("findmember() 메소드 오류 = " + e.getMessage());
+		}finally {
+			close(conn, pstmt, rs);
+		}
+		
+		return id;
+	}
 }
