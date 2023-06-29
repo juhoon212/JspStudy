@@ -196,7 +196,9 @@ public class MemberDAO extends JdbcDAO{
 			
 			rs = pstmt.executeQuery();
 			
-			id = rs.getString("id");
+			if(rs.next()) {
+				id = rs.getString("id");
+			}
 		}catch(SQLException e) {
 			System.out.println("findmember() 메소드 오류 = " + e.getMessage());
 		}finally {

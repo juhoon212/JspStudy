@@ -5,13 +5,15 @@
    <%-- 아이디 검색 --%>
    <%
    
+   request.setCharacterEncoding("UTF-8");
+   
    String Id = request.getParameter("name");
    String email = request.getParameter("email");
    
    
    
-   MemberDTO member = MemberDAO.getMemberDAO().findmember(Id, email);
-   String findId = member.getId();
+   String id = MemberDAO.getMemberDAO().findmember(Id, email);
+   
    
 
    
@@ -27,9 +29,10 @@
 	   return;
    }
    
-   if(findId == null) {
+   if(id == null) {
 	   session.setAttribute("failMessage", "찾으실 아이디가 없습니다.");
-	   response.sendRedirect(request.getContextPath() + "/index.jsp?group=member&worker=search_id.jsp");
+	   response.sendRedirect(request.getContextPath() + "/index.jsp?group=member&worker=search_id_display");
+	   return;
    }
    
    
@@ -39,8 +42,8 @@
    // 성공 로직
    		
    		
-   		session.setAttribute("successMessage", "아이디 = " + findId);
-   		response.sendRedirect(request.getContextPath() + "/index.jsp?group=member&worker=search_id_display.jsp");
+   		session.setAttribute("successMessage", "아이디 = " + id);
+   		response.sendRedirect(request.getContextPath() + "/index.jsp?group=member&worker=search_id_display");
    
    
    %>

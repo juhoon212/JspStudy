@@ -8,6 +8,17 @@
 	String successMessage = (String)session.getAttribute("successMessage");
 	String failMessage = (String)session.getAttribute("failMessage");
 	
+	if(successMessage == null) {
+		successMessage = "";
+	} else {
+		session.removeAttribute("successMessage");
+	}
+	
+	if(failMessage == null) {
+		failMessage = "";
+	} else {
+		session.removeAttribute("failMessage");
+	}
 	
 	
 %>
@@ -58,7 +69,7 @@ li {
 <li>
 <button type="submit" id="button">검색</button>
 </li>
-	<div> <%=successMessage %></div>
+	<% if (successMessage == "") { %> <%= failMessage%> <% } else {%> <%= successMessage %> <% } %>
 </ul>
 </form>
 </ul>
