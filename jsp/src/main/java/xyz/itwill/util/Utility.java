@@ -2,6 +2,7 @@ package xyz.itwill.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Pattern;
 
 //웹프로그램 작성에 필요한 기능을 제공하기 위한 클래스
 public class Utility {
@@ -35,5 +36,20 @@ public class Utility {
 			System.out.println("[에러]잘못된 암호화 알고리즘을 사용 하였습니다.");
 		}
 		return encryptPasswd;
+	}
+	
+	// 문자열을 전달받아 태그 관련 문자열을 모두 제거하여 반환하는 메소드
+	
+	public static String stripTag(String source) {
+		// 매개변수로 전달받은 정규표현식이 저장된 Pattern 객체를 생성하여 반환하는 메소드
+		Pattern htmlTag = Pattern.compile("\\<.*?\\>");
+		
+		//Pattern
+		return htmlTag.matcher(source).replaceAll("");
+	}
+	
+	// 문자열을 전달받아 태그 관련 문자를 회피문자로 변경하여 반환하는 메소드
+	public static String escapeTag(String source) {
+		return source.replace("<", "&lt;").replace(">", "&gt;");
 	}
 }

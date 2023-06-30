@@ -8,6 +8,8 @@
     pageEncoding="UTF-8"%>
 <%-- REVIEW 테이블에 저장된 게시글을 검색하여 게시글 목록을 클라이언트에게 전달하여 응답하는 JSP 문서 --%>
 <%-- => 게시글을 페이지로 구분하여 검색 처리 - 페이징 처리 --%>
+<%-- [페이지번호]를 클릭한 경우 자기자신을 요청 쿼리스트링에 페이지번호, 검색대상, 검색단어를 포함해서 전달 --%>
+<%-- 글쓰기 태그를 클릭한 경우 review/review_write.jsp 문서 요청 - 로그인 상태의 사용자에게만 링크 제공 --%>
 <%
 	//게시글 검색 기능에 필요한 전달값(검색대상과 검색단어)을 반환받아 저장
 	String search=request.getParameter("search");
@@ -45,7 +47,7 @@
 	
 	//요청 페이지 번호에 대한 시작 게시글의 행번호를 계산하여 저장
 	//ex) 1Page : 1, 2Page : 11, 3Page : 21, 4Page : 31, ...
-	int startRow=(pageNum-1)*pageSize+1;
+	int startRow=(pageNum-1)*pageSize+1; // mysql은 인덱스가 0부터 시작해서 +1 을 뺴줘야한다.
 
 	//요청 페이지 번호에 대한 종료 게시글의 행번호를 계산하여 저장
 	//ex) 1Page : 10, 2Page : 20, 3Page : 30, 3Page : 40, ...
@@ -142,7 +144,7 @@ td {
 	<div id="review_title">제품후기목록(<%=totalReview%>)</div>
 	
 	<% if(loginMember!=null) {//로그인 상태의 사용자인 경우 %>
-	<div style="text-align: right;">
+	<div style="text-align: right;" onclick="location.href='<%=request.getContextPath()%>/index.jsp?group=review&worker=review_write'">
 		<button type="button">글쓰기</button>
 	</div>
 	<% } %>
@@ -178,11 +180,11 @@ td {
 					<% } %>
 					<%-- 게시글의 상태를 비교하여 제목과 링크를 구분하여 응답 처리 --%>
 					<% if(review.getStatus()==1) {//일반 게시글인 경우 %>
-						<a href="#"><%=review.getSubject()%></a>					
+						<a href="<%= request.getContextPath()%>/index.jsp?group=review&worker=review_detail&num=<%=review.getNum()%>&pageNum=<%=pageNum%>&search=<%=search%>&keyword=<%=keyword%>"><%=review.getSubject()%></a>					
 					<% } else if(review.getStatus()==2) {//비밀 게시글인 경우 %>
 						<span class="subject_hidden">비밀글</span>
 						<%-- 로그인 상태의 사용자가 게시글 작성자이거나 관리자인 경우 --%>
-						<% if(loginMember!=null && (loginMember.getId().equals(review.getId()) || loginMember.getMemberStatus()==9)) { %>)
+						<% if(loginMember!=null && (loginMember.getId().equals(review.getReviewid()) || loginMember.getMemberStatus()==9)) { %>)
 							<a href="#"><%=review.getSubject()%></a>					
 						<% } else { %>
 							게시글 작성자 또는 관리자만 확인 가능합니다.
@@ -206,7 +208,7 @@ td {
 						오늘
 					<% } else {//오늘 작성된 게시글이 아닌 경우 %>
 						<%=review.getRegdate() %>
-					<% } System.out.println(review.getRegdate());%>		
+					<% } %>		
 				</td>
 				<% } else {//삭제 게시글인 경우 %>
 				<td>&nbsp;</td>
