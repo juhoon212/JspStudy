@@ -8,8 +8,10 @@
     pageEncoding="UTF-8"%>
 <%-- REVIEW 테이블에 저장된 게시글을 검색하여 게시글 목록을 클라이언트에게 전달하여 응답하는 JSP 문서 --%>
 <%-- => 게시글을 페이지로 구분하여 검색 처리 - 페이징 처리 --%>
-<%-- [페이지번호]를 클릭한 경우 자기자신을 요청 쿼리스트링에 페이지번호, 검색대상, 검색단어를 포함해서 전달 --%>
-<%-- 글쓰기 태그를 클릭한 경우 review/review_write.jsp 문서 요청 - 로그인 상태의 사용자에게만 링크 제공 --%>
+<%-- => [페이지번호] 태그를 클릭한 경우 [review/review_list.jsp] 문서 요청 - 페이지번호,검색대상,검색단어 전달 --%>
+<%-- => [검색] 태그를 클릭한 경우 [review/review_list.jsp] 문서 요청 - 검색대상,검색단어 전달 --%>
+<%-- => [글쓰기] 태그를 클릭한 경우 [review/review_write.jsp] 문서 요청 - 로그인 상태의 사용자에게만 링크 제공 --%>
+<%-- => 게시글의 [제목] 태그를 클릭한 경우 [review/review_detail.jsp] 문서 요청 - 글번호, 페이지번호, 검색대상, 검색단어 전달 --%>
 <%
 	//게시글 검색 기능에 필요한 전달값(검색대상과 검색단어)을 반환받아 저장
 	String search=request.getParameter("search");
@@ -45,11 +47,11 @@
 		pageNum=1;//1번째 페이지의 게시글 목록을 검색
 	}
 	
-	//요청 페이지 번호에 대한 시작 게시글의 행번호를 계산하여 저장
+	//페이지 번호에 대한 게시글의 시작 행번호를 계산하여 저장
 	//ex) 1Page : 1, 2Page : 11, 3Page : 21, 4Page : 31, ...
-	int startRow=(pageNum-1)*pageSize+1; // mysql은 인덱스가 0부터 시작해서 +1 을 뺴줘야한다.
+	int startRow=(pageNum-1)*pageSize+1;
 
-	//요청 페이지 번호에 대한 종료 게시글의 행번호를 계산하여 저장
+	//페이지 번호에 대한 게시글의 종료 행번호를 계산하여 저장
 	//ex) 1Page : 10, 2Page : 20, 3Page : 30, 3Page : 40, ...
 	int endRow=pageNum*pageSize;
 		
@@ -71,12 +73,9 @@
 	// => 게시글 작성날짜와 현재 날짜를 비교하여 게시글 작성날짜를 다르게 출력되도록 응답 처리
 	String currentDate=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	
-	
 	//페이지에 출력될 게시글 일련번호 시작값을 계산하여 저장
 	// => 검색 게시글의 갯수 : 91 >> 1Page : 91~82, 2Page : 81~72, 3Page : 71~62, ...
 	int printNum=totalReview-(pageNum-1)*pageSize;
-	
-	
 %>
 <style type="text/css">
 #review_list {
@@ -131,7 +130,7 @@ td {
 
 #page_list {
 	font-size: 1.1em;
-	margin-bottom: 10px;
+	margin: 10px;
 }
 
 #page_list a:hover {
@@ -144,8 +143,8 @@ td {
 	<div id="review_title">제품후기목록(<%=totalReview%>)</div>
 	
 	<% if(loginMember!=null) {//로그인 상태의 사용자인 경우 %>
-	<div style="text-align: right;" onclick="location.href='<%=request.getContextPath()%>/index.jsp?group=review&worker=review_write'">
-		<button type="button">글쓰기</button>
+	<div style="text-align: right;">
+		<button type="button" onclick="location.href='<%=request.getContextPath()%>/index.jsp?group=review&worker=review_write';">글쓰기</button>
 	</div>
 	<% } %>
 	
@@ -178,14 +177,15 @@ td {
 						<%-- 게시글의 깊이를 제공받아 왼쪽 여백 설정 --%>
 						<span style="margin-left: <%=review.getRelevel()*20%>px;">└[답글]</span>
 					<% } %>
+					
 					<%-- 게시글의 상태를 비교하여 제목과 링크를 구분하여 응답 처리 --%>
 					<% if(review.getStatus()==1) {//일반 게시글인 경우 %>
-						<a href="<%= request.getContextPath()%>/index.jsp?group=review&worker=review_detail&num=<%=review.getNum()%>&pageNum=<%=pageNum%>&search=<%=search%>&keyword=<%=keyword%>"><%=review.getSubject()%></a>					
+						<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_detail&num=<%=review.getNum()%>&pageNum=<%=pageNum%>&search=<%=search%>&keyword=<%=keyword%>"><%=review.getSubject()%></a>					
 					<% } else if(review.getStatus()==2) {//비밀 게시글인 경우 %>
 						<span class="subject_hidden">비밀글</span>
 						<%-- 로그인 상태의 사용자가 게시글 작성자이거나 관리자인 경우 --%>
-						<% if(loginMember!=null && (loginMember.getId().equals(review.getReviewid()) || loginMember.getMemberStatus()==9)) { %>)
-							<a href="#"><%=review.getSubject()%></a>					
+						<% if(loginMember!=null && (loginMember.getId().equals(review.getReviewid()) || loginMember.getMemberStatus()==9)) { %>
+							<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_detail&num=<%=review.getNum()%>&pageNum=<%=pageNum%>&search=<%=search%>&keyword=<%=keyword%>"><%=review.getSubject()%></a>					
 						<% } else { %>
 							게시글 작성자 또는 관리자만 확인 가능합니다.
 						<% } %>
@@ -204,8 +204,8 @@ td {
 				
 				<%-- 작성일 : 오늘 작성된 게시글은 시간만 출력하고 오늘 작성된 게시글이 아닌 경우 날짜와 시간 출력 --%>
 				<td>
-					<% if(currentDate.equals(review.getRegdate().substring(0,10))) {//오늘 작성된 게시글인 경우 %>
-						오늘
+					<% if(currentDate.equals(review.getRegdate().substring(0, 10))) {//오늘 작성된 게시글인 경우 %>
+						<%=review.getRegdate().substring(11) %>
 					<% } else {//오늘 작성된 게시글이 아닌 경우 %>
 						<%=review.getRegdate() %>
 					<% } %>		
@@ -238,10 +238,9 @@ td {
 	%>
 	<div id="page_list">
 	<% if(startPage>blockSize) { %>
-		<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_list&pageNum=1&search=<%=search%>&keyword=<%=keyword%>">[처음]</a>
 		<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_list&pageNum=<%=startPage-blockSize%>&search=<%=search%>&keyword=<%=keyword%>">[이전]</a>
 	<% } else { %>
-		[처음][이전]
+		[이전]
 	<% } %>
 	
 	<% for(int i=startPage;i<=endPage;i++) { %>
@@ -256,9 +255,8 @@ td {
 	
 	<% if(endPage!=totalPage) { %>
 		<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_list&pageNum=<%=startPage+blockSize%>&search=<%=search%>&keyword=<%=keyword%>">[다음]</a>
-		<a href="<%=request.getContextPath()%>/index.jsp?group=review&worker=review_list&pageNum=<%=totalPage%>&search=<%=search%>&keyword=<%=keyword%>">[마지막]</a>
 	<% } else { %>
-		[다음][마지막]
+		[다음]
 	<% } %>
 	</div>
 	
@@ -271,22 +269,6 @@ td {
 			<option value="content">&nbsp;내용&nbsp;</option>
 		</select>
 		<input type="text" name="keyword">
-		<button type="submit">게시글 검색</button>
+		<button type="submit">검색</button>
 	</form>
 </div>
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
